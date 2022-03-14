@@ -22,4 +22,11 @@ public class CommandLineParserTest {
 		parser.parse("--input 1.txt");
 		assertEquals(parser.getString("input"), "1.txt");
 	}
+	
+	@Test
+	public void example_init() {
+		parser.addOption(new Option("test", Type.INTEGER), "t");
+		parser.parse("--test 1");
+		assertEquals(parser.getInteger("test"), 1);
+	}
 }
