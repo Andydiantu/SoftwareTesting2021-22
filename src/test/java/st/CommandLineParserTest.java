@@ -20,13 +20,13 @@ public class CommandLineParserTest {
 
 		parser.addOption(new Option("input", Type.STRING), "i");
 		parser.parse("--input 1.txt");
-		assertEquals(parser.getString("input"), "1.txt");
+		assertEquals(parser.getString("i"), "1.txt");
 	}
 	
 	@Test
 	public void example_init() {
-		parser.addOption(new Option("test", Type.INTEGER), "t");
-		parser.parse("--test 1");
-		assertEquals(parser.getInteger("test"), 1);
+		parser.addOption(new Option("te    st", Type.INTEGER), "t");
+		parser.parse("--te            st 1");
+		assertEquals(parser.getInteger("te            st"), 1);
 	}
 }

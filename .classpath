@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="lib" path="/home/jingyuan/Documents/softwareTesting/SoftwareTesting2021-22/ST_Coursework2021_22.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/jingyuan/Documents/softwareTesting/SoftwareTesting2021-22/ST_Coursework2021_22.jar"/>
 	<classpathentry kind="src" output="target/classes" path="src/main/java">
 		<attributes>
 			<attribute name="optional" value="true"/>
