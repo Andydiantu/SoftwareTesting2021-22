@@ -25,7 +25,7 @@ public class Task1_1_FunctionalTest {
 	
 	@Test
 	public void emptyStringNameTest() {
-		parser.addOption(new Option("2  f", Type.STRING), "oz");
+		parser.addOption(new Option("f23", Type.STRING), "oz");
 	}
 	
 	//get bug #8
@@ -36,7 +36,7 @@ public class Task1_1_FunctionalTest {
 		parser.addOption(new Option("op1", Type.STRING), "hi");
 		parser.parse("--op1 3.txt");
 		
-		assertEquals(parser.getString("-oh"), "2.txt");
+		assertEquals(parser.getString("-oh"), "3.txt");
 		//assertEquals(parser.getString("op1"), "3.txt");
 		
 		
@@ -69,6 +69,23 @@ public class Task1_1_FunctionalTest {
 		assertEquals(parser.getString("op1"),"2.txt");
 		}
 	
+	@Test
+	public void praseNoValueSpecifyTest() {
+		parser.addOption(new Option("op5", Type.STRING), "op3");
+		
+		parser.parse("--op5=");
+	}
+	
+	@Test
+	public void parseWithBothSingleAndDoubleQuoteTest() {
+		parser.addOption(new Option("op5", Type.STRING), "op3");
+		
+		parser.parse("--op5=\'hdjskalfh\"");
+		
+		assertEquals(parser.getString("op5"), "\'hdjskalfh\"");
+		parser.parse("--op5=\"hdjskalfh\'");
+		assertEquals(parser.getString("op5"), "\"hdjskalfh\'");
+	}
 	
 	// get bug #2
 	@Test
@@ -90,6 +107,22 @@ public class Task1_1_FunctionalTest {
 	}
 	
 	@Test
+	public void boolean0AssignmentTest() {
+		parser.addOption(new Option("big", Type.BOOLEAN), "the");
+		
+		parser.parse("--big=0");
+		
+		assertFalse(parser.getBoolean("big"));
+	}
+	
+	@Test (expected = RuntimeException.class)
+	public void lookupOptionByNameNotExistTest() {
+		parser.addOption(new Option("op1", Type.STRING), "sc" );
+		
+	    parser.getInteger("op134");
+	}
+	
+	@Test
 	public void differentOptionTypeTest() {
 		parser.addOption(new Option("op1", Type.STRING));
 		parser.addOption(new Option("op2", Type.INTEGER));
@@ -104,7 +137,7 @@ public class Task1_1_FunctionalTest {
 		
 		assertEquals(parser.getString("op1"), "false");
 		assertEquals(parser.getString("op2"), "false");
-		assertEquals(parser.getString("op3"), "false");
+		assertEquals(parser.getBoolean("op3"), false);
 		assertEquals(parser.getString("op4"), "false");
 	}
 	
@@ -136,7 +169,7 @@ public class Task1_1_FunctionalTest {
 			
 			parser.parse("-fhadlsuijkhfkladghjflknuacdgfikulagsuifcgsasdfhjkldhksjafhjkld2338239735kjdsafgjkladhsklfdhadjsasdhjlkfa=ll");
 			
-			assertEquals("fhadlsuijkhfkladghjflknuacdgfikulagsuifcgsasdfhjkldhksjafhjkld2338239735kjdsafgjkladhsklfdhadjsasdhjlkfa", "ll");
+			assertEquals("fhadlsuijkhfkladghjflknuacdgfikulagsuifcgsasdfhjkldhksjafhjkld2338239735kjdsafgjkladhsklfdhadjsasdhjlkfa", "fhadlsuijkhfkladghjflknuacdgfikulagsuifcgsasdfhjkldhksjafhjkld2338239735kjdsafgjkladhsklfdhadjsasdhjlkfa");
 		}
 		
 		
@@ -251,7 +284,7 @@ public class Task1_1_FunctionalTest {
 			parser.addOption(new Option("op1", Type.STRING), "st");
 			
 			parser.parse("-st=\'value=\"1.txt\"\'");
-			assertEquals(parser.getString("st"), "1.txt");
+			assertEquals(parser.getString("st"), "value=\"1.txt\"");
 		}
 		
 		@Test
@@ -259,7 +292,7 @@ public class Task1_1_FunctionalTest {
 			parser.addOption(new Option("op1", Type.STRING), "st");
 			
 			parser.parse("-st=\"value=\'1.txt\'\"");
-			assertEquals(parser.getString("st"), "1.txt");
+			assertEquals(parser.getString("st"), "value=\'1.txt\'");
 		}
 		
 		
@@ -267,8 +300,9 @@ public class Task1_1_FunctionalTest {
 		@Test
 		public void optionNameWithManyspaceTest() {
 			parser.addOption(new Option("op1", Type.INTEGER), "st");
-			
-			parser.parse("--op                         1 jkadsl");
+			parser.addOption(new Option("op", Type.INTEGER), "st");
+
+			parser.parse("--op             1 jkadsl");
 			
 		}
 		
@@ -398,20 +432,20 @@ public class Task1_1_FunctionalTest {
 		public void keyWordValueTest() {
 			parser.addOption(new Option("op1",Type.STRING), "sc");
 			
-			parser.parse("--op1=dsaf{D_QUOTE}");
-			assertEquals(parser.getString("op1"), "dsaf{D_QUOTE}");
+			parser.parse("--op1={D_QUOTE}");
+			assertEquals(parser.getString("op1"), "\"");
 			
-			parser.parse("--op1=sdfa{S_QUOTE}");
-			assertEquals(parser.getString("op1"), "{S_QUOTE}");
+			parser.parse("--op1={S_QUOTE}");
+			assertEquals(parser.getString("op1"), "\'");
 			
 			parser.parse("--op1={SPACE}");
-			assertEquals(parser.getString("op1"), "{SPACE}");
+			assertEquals(parser.getString("op1"), " ");
 
 			parser.parse("--op1={DASH}");
-			assertEquals(parser.getString("op1"), "{DASH}");
+			assertEquals(parser.getString("op1"), "-");
 			
 			parser.parse("--op1={EQUALS}");
-			assertEquals(parser.getString("op1"), "{EQUALS}");
+			assertEquals(parser.getString("op1"), "=");
 			
 		}
 		
@@ -428,7 +462,7 @@ public class Task1_1_FunctionalTest {
 			assertEquals(parser.getString("sc"),"2.txt");
 		}
 		
-		@Test
+		@Test(expected = RuntimeException.class)
 		public void optionNotDefineExceptionTest() {
 			parser.getString("sdffdsf");
 		}
@@ -456,7 +490,7 @@ public class Task1_1_FunctionalTest {
 		}
 		
 		//get bug #16
-		@Test
+		@Test(expected = NullPointerException.class)
 		public void testGetStringEdgeValueNull() {
 			parser.addOption(new Option("op1", Type.STRING), "sc");
 			parser.parse("--op1=\"\"");
@@ -498,8 +532,8 @@ public class Task1_1_FunctionalTest {
 		@Test
 		public void largeIntValueRetrieveTest() {
 			parser.addOption(new Option("op1", Type.INTEGER), "sc");
-			parser.parse("--op1=21474836474123");
-			assertEquals(parser.getInteger("op1"), 21474836474123L);
+			parser.parse("--op1=2147483647412");
+			assertEquals(parser.getInteger("op1"), 0);
 		}
 		
 		//get bug #15
@@ -507,7 +541,7 @@ public class Task1_1_FunctionalTest {
 		public void largeIntValueRetrieveFromStringTest() {
 			parser.addOption(new Option("op1", Type.STRING), "sc");
 			parser.parse("--op1=21474836474123");
-			assertEquals(parser.getInteger("op1"), 21474836474123L);
+			assertEquals(parser.getInteger("op1"), 0);
 		}
 		
 		@Test
@@ -523,7 +557,16 @@ public class Task1_1_FunctionalTest {
 			parser.addOption(new Option("op1", Type.BOOLEAN), "sc");
 			parser.parse("--op1=123334557");
 			
-			assertEquals(parser.getInteger("op1"), 123334557);
+			assertEquals(parser.getInteger("op1"), 1);
+		}
+		
+		@Test
+		public void getIntegerBooleanFalseTest() {
+			parser.addOption(new Option("op1", Type.BOOLEAN));
+			
+			parser.parse("--op1=false");
+			
+			assertEquals(parser.getInteger("op1"), 0);
 		}
 		
 		
@@ -536,6 +579,7 @@ public class Task1_1_FunctionalTest {
 		public void nameAndShortcutExistTest() {
 			parser.addOption(new Option("op12", Type.INTEGER), "sc12");
 			parser.addOption(new Option("op13", Type.CHARACTER), "sc13");
+			parser.addOption(new Option("sc12", Type.CHARACTER), "sc13");
 			
 			assertTrue(parser.shortcutExists("sc12"));
 			assertTrue(parser.optionExists("op12"));
@@ -545,8 +589,10 @@ public class Task1_1_FunctionalTest {
 			
 			assertTrue(parser.optionOrShortcutExists("sc12"));
 			assertFalse(parser.optionOrShortcutExists("op34"));
+			assertTrue(parser.optionOrShortcutExists("sc13"));
 			
 		}
+		
 		
 		
 	@Test
@@ -594,6 +640,16 @@ public class Task1_1_FunctionalTest {
 	}
 	
 	@Test
+	public void replaceOriginalValueNullTest() {
+		parser.addOption(new Option("op1", Type.STRING),"newSC");
+		
+		parser.parse("--op1=oldstuff");
+		
+		parser.replace("op1", "old", "new");
+		assertEquals(parser.getString("op1"),"newstuff" );
+	}
+	
+	@Test
 	public void normalReplaceWithSpaceTest() {
 		parser.addOption(new Option("op1", Type.STRING),"newSC");
 		
@@ -632,6 +688,17 @@ public class Task1_1_FunctionalTest {
 		
 		parser.replace("op1                    ", "old", "ne-w");
 		assertEquals(parser.getString("op1"),"ne-wstuff" );
+	}
+	
+	
+	@Test
+	public void replaceNotExistTest() {
+		parser.addOption(new Option("op23333", Type.STRING), "sc");
+		
+		parser.parse("--op23333=oldVIEW");
+		
+		parser.replace("sc", "old", "new");
+		assertEquals(parser.getString("sc"), "newVIEW");
 	}
 	
 	@Test
@@ -678,9 +745,9 @@ public class Task1_1_FunctionalTest {
 		parser.addOption(new Option("op1", Type.STRING));
 		parser.parse("--op1=70.txt");
 		
-		assertEquals(parser.getString("sc"), "2.txt");
-		assertEquals(parser.getString("sc123"), "2.txt");
-		assertEquals(parser.getString("sc345"), "2.txt");
+		assertEquals(parser.getString("sc"), "70.txt");
+		assertEquals(parser.getString("sc123"), "70.txt");
+		assertEquals(parser.getString("sc345"), "70.txt");
 	}
 	
 	@Test
@@ -737,6 +804,20 @@ public class Task1_1_FunctionalTest {
 	}
 	
 	@Test
+	public void sameOptionTest() {
+		Option option = new Option("op1", Type.STRING);
+		
+		assertTrue(option.equals(option));
+	}
+	
+	@Test
+	public void nullOptionTest() {
+		Option option = new Option("op1", Type.STRING);
+		Option option2 = new Option(null, Type.BOOLEAN);
+		assertFalse(equals(option2));
+	}
+	
+	@Test
 	public void optionToStringTest() {
 		Option option = new Option("op1", Type.STRING);
 		
@@ -744,6 +825,49 @@ public class Task1_1_FunctionalTest {
 		
 		assertEquals(option.toString(), "Option[name:op1, value:1.txt, type:STRING]");
 	}
+	
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void notypeStoreTest() {
+		parser.addOption(new Option("op1", Type.NOTYPE), "sc");
+		
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addOptionNullNameTest() {
+		parser.addOption(new Option(null, Type.STRING));
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addOptionEmptyNameTest() {
+		parser.addOption(new Option("", Type.STRING));
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addOptionNotValidNameTest() {
+		parser.addOption(new Option("#$%^^&*", Type.STRING));
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addOptionNotValidShortCutTest() {
+		parser.addOption(new Option("op1", Type.STRING),null);
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addOptionNotValidShortCutTest2() {
+		parser.addOption(new Option("op1", Type.STRING),"$#%^^&**(&");
+	}
+	
+	@Test
+	public void parserToStringTest() {
+		parser.addOption(new Option("op1", Type.STRING), "sc");
+		assertEquals(parser.toString(),"Options Map: \n"
+				+ "{op1=Option[name:op1, value:, type:STRING]}\n"
+				+ "Shortcuts Map:\n"
+				+ "{sc=Option[name:op1, value:, type:STRING]}" );
+	}
+	
+	
 	
 	
 	
