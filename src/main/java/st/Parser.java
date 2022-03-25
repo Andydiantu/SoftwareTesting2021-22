@@ -27,288 +27,288 @@ public class Parser {
 		optionMap.store(option, "");
 	}
 
-	public void addAll(String options, String types) {
-		String[] optionList = options.split("\\s+");
-		String[] typeList = types.split("\\s+");
-
-		if(typeList.length == 0) {
-			return;
-		}
-
-		if(!checkTypeList(typeList)) {
-			throw new IllegalArgumentException("Illegal type varaible is given");
-		}
-
-		int optionIndex = 0, typeIndex = 0;
-
-		while(optionIndex < optionList.length) {
-			String[] currOptions = generateOptionList(optionList[optionIndex]);
-
-			if(currOptions == null) {
-				optionIndex++;
-				typeIndex++;
-				continue;
-			}
-
-			int currIndex = 0;
-			Type currType;
-			if(typeIndex < typeList.length) {
-				currType = typeStringToType(typeList[typeIndex]);
-			} else {
-				currType = typeStringToType(typeList[typeList.length-1]);
-			}
-			while(currIndex < currOptions.length) {
-				if(currOptions[currIndex] != null) {
-					addOption(new Option(currOptions[currIndex], currType));
-				}
-				currIndex++;
-			}
-
-			optionIndex++;
-			typeIndex++;
-		}
-	}
-
-	public void addAll(String options, String shortcuts, String types) {
-		String[] optionList = options.split("\\s+");
-		String[] shortcutList = generateShortcutList( shortcuts.split("\\s+"));
-		String[] typeList = types.split("\\s+");
-		
-		if(typeList.length == 0) {
-			return;
-		}
-		
-		if(!checkTypeList(typeList)) {
-			throw new IllegalArgumentException("Illegal type varaible is given");
-		}
-		
-		int optionIndex = 0, shortcutIndex = 0, typeIndex = 0;
-		
-		while(optionIndex < optionList.length) {
-			String[] currOptions = generateOptionList(optionList[optionIndex]);
-			
-			if(currOptions == null) {
-				optionIndex++;
-				shortcutIndex++;
-				typeIndex++;
-				continue;
-			}
-			
-			int currIndex = 0;
-			Type currType;
-			if(typeIndex < typeList.length) {
-				currType = typeStringToType(typeList[typeIndex]);
-			} else {
-				currType = typeStringToType(typeList[typeList.length-1]);
-			}
-			while(currIndex < currOptions.length) {
-				if(currOptions[currIndex] != null) {
-					if(shortcutIndex < shortcutList.length && shortcutList[shortcutIndex] != null) {
-						addOption(new Option(currOptions[currIndex], currType),shortcutList[shortcutIndex]);
-					} else {
-						addOption(new Option(currOptions[currIndex], currType));
-					}
-				}
-				currIndex++;
-				shortcutIndex++;
-			}
-			
-			optionIndex++;
-			typeIndex++;
-		}
-	}
-	
-	private Type typeStringToType(String type) {
-		
-		Type ans;
-		
-		if(type.equals("String")) {
-			ans = Type.STRING;
-		} else if (type.equals("Integer")) {
-			ans = Type.INTEGER;
-		} else if (type.equals("Character")) {
-			ans = Type.CHARACTER;
-		} else {
-			ans = Type.BOOLEAN;
-		}
-		
-		return ans;
-	}
-	
-	private String[] generateOptionList(String option) {
-		List<String> ans = new ArrayList<String>();
-		
-		if(option.contains("-") && checkValidGroup(option)) {
-			for(String opt : groupToList(option)) {
-				ans.add(opt);
-			}
-		} else {
-			Pattern p = Pattern.compile("[A-Za-z0-9_]+");
-	        Matcher m = p.matcher(option);
-	        
-	        if(m.matches() && !Character.isDigit(option.charAt(0))) {
-	        	ans.add(option);
-	        } else {
-	        	return null;
-	        }
-		}
-		
-		return ans.toArray(new String[0]);
-	}
-	
-	private String[] generateShortcutList(String[] shortcuts) {
-		List<String> ans = new ArrayList<String>();
-		
-		for(String shortcut : shortcuts ) {
-			if(shortcut.contains("-") && checkValidGroup(shortcut)) {
-				for(String st : groupToList(shortcut)) {
-					ans.add(st);
-				}
-			} else {
-				Pattern p = Pattern.compile("[A-Za-z0-9_]+");
-		        Matcher m = p.matcher(shortcut);
-		        
-		        if(m.matches() && !Character.isDigit(shortcut.charAt(0))) {
-		        	ans.add(shortcut);
-		        } else {
-		        	ans.add(null);
-		        }
-			}
-		}
-		
-		return ans.toArray(new String[0]);
-	}
-	
-	private boolean checkTypeList(String[] typeList) {
-		
-		HashSet<String> typeSet = new HashSet<String>();
-		typeSet.add("String");
-		typeSet.add("Integer");
-		typeSet.add("Character");
-		typeSet.add("Boolean");
-		
-		for(String type : typeList) {
-			if(!typeSet.contains(type)) {
-				return false;
-			}
-		}
-		
-		return true;
-	}
-	
-	private boolean checkValidGroup(String group) {
-		
-		int hyphenCount = 0;
-		for(Character s : group.toCharArray()) {
-			if(s == '-') {
-				hyphenCount++;
-			}
-		}
-		
-		if (hyphenCount != 1) {
-			return false;
-		}
-		
-		int hyphenIndex = group.indexOf('-');
-		
-		String base = group.substring(0, hyphenIndex-1);
-		Pattern p = Pattern.compile("[A-Za-z0-9_]+");
-        Matcher m = p.matcher(base);
-		if(!m.matches()) {
-			return false;
-		}
-		
-		char firstPart = group.charAt(hyphenIndex - 1);
-		
-		// 0 for lowercase, 1 for uppercase, 2 for numbers
-		int rangeType;
-		
-	    if(Character.isLowerCase(firstPart)) {
-	    	rangeType = 0;
-	    } else if (Character.isUpperCase(firstPart)) {
-	    	rangeType = 1;
-	    } else if(Character.isDigit(firstPart)) {
-	    	rangeType = 2;
-	    } else {
-	    	return false;
-	    }
-	    
-	    if(rangeType == 0) {
-	    	if(group.length() != hyphenIndex+2) {
-	    		return false;
-	    	}
-	    	
-	    	if(!Character.isLowerCase(group.charAt(hyphenIndex+1))) {
-	    		return false;
-	    	}
-	    } else if (rangeType == 1) {
-	    	if(group.length() != hyphenIndex+2) {
-	    		return false;
-	    	}
-	    	
-	    	if(!Character.isUpperCase(group.charAt(hyphenIndex+1))) {
-	    		return false;
-	    	}
-	    } else {
-	    	
-	    	String secondPart = group.substring(hyphenIndex+1);
-	    	
-	    	Pattern p2 = Pattern.compile("[0-9]+");
-	    	Matcher m2 = p2.matcher(secondPart);
-	    	
-	    	if(!m2.matches()) {
-	    		return false;
-	    	}
-	    }
-		
-		return true;
-	}
-	
-	private List<String> groupToList(String group) {
-		List<String> ans = new ArrayList<String>();
-		
-		int hyphenIndex = group.indexOf('-');
-		
-		String base = group.substring(0, hyphenIndex-1);
-		
-		char firstPart = group.charAt(hyphenIndex - 1);
-		
-		if(Character.isDigit(firstPart)){
-			int fstBound = Character.getNumericValue(firstPart);
-			
-			int sndBound = Integer.parseInt( group.substring(hyphenIndex+1));
-			
-			if(fstBound < sndBound) {
-				while(fstBound <= sndBound) {
-					ans.add(base + fstBound);
-					fstBound++;
-				}
-			} else {
-				while(sndBound <= fstBound) {
-					ans.add(base + fstBound);
-					fstBound--;
-				}
-			}
-		} else {
-			char fstBound = firstPart;
-			
-			char sndBound = group.charAt(hyphenIndex+1);
-			
-			if(fstBound < sndBound) {
-				while(fstBound <= sndBound) {
-					ans.add(base + fstBound);
-					fstBound++;
-				}
-			} else {
-				while(sndBound <= fstBound) {
-					ans.add(base + fstBound);
-					fstBound--;
-				}
-			}
-		}
-		
-		return ans;
-	}
+//	public void addAll(String options, String types) {
+//		String[] optionList = options.split("\\s+");
+//		String[] typeList = types.split("\\s+");
+//
+//		if(typeList.length == 0) {
+//			return;
+//		}
+//
+//		if(!checkTypeList(typeList)) {
+//			throw new IllegalArgumentException("Illegal type varaible is given");
+//		}
+//
+//		int optionIndex = 0, typeIndex = 0;
+//
+//		while(optionIndex < optionList.length) {
+//			String[] currOptions = generateOptionList(optionList[optionIndex]);
+//
+//			if(currOptions == null) {
+//				optionIndex++;
+//				typeIndex++;
+//				continue;
+//			}
+//
+//			int currIndex = 0;
+//			Type currType;
+//			if(typeIndex < typeList.length) {
+//				currType = typeStringToType(typeList[typeIndex]);
+//			} else {
+//				currType = typeStringToType(typeList[typeList.length-1]);
+//			}
+//			while(currIndex < currOptions.length) {
+//				if(currOptions[currIndex] != null) {
+//					addOption(new Option(currOptions[currIndex], currType));
+//				}
+//				currIndex++;
+//			}
+//
+//			optionIndex++;
+//			typeIndex++;
+//		}
+//	}
+//
+//	public void addAll(String options, String shortcuts, String types) {
+//		String[] optionList = options.split("\\s+");
+//		String[] shortcutList = generateShortcutList( shortcuts.split("\\s+"));
+//		String[] typeList = types.split("\\s+");
+//		
+//		if(typeList.length == 0) {
+//			return;
+//		}
+//		
+//		if(!checkTypeList(typeList)) {
+//			throw new IllegalArgumentException("Illegal type varaible is given");
+//		}
+//		
+//		int optionIndex = 0, shortcutIndex = 0, typeIndex = 0;
+//		
+//		while(optionIndex < optionList.length) {
+//			String[] currOptions = generateOptionList(optionList[optionIndex]);
+//			
+//			if(currOptions == null) {
+//				optionIndex++;
+//				shortcutIndex++;
+//				typeIndex++;
+//				continue;
+//			}
+//			
+//			int currIndex = 0;
+//			Type currType;
+//			if(typeIndex < typeList.length) {
+//				currType = typeStringToType(typeList[typeIndex]);
+//			} else {
+//				currType = typeStringToType(typeList[typeList.length-1]);
+//			}
+//			while(currIndex < currOptions.length) {
+//				if(currOptions[currIndex] != null) {
+//					if(shortcutIndex < shortcutList.length && shortcutList[shortcutIndex] != null) {
+//						addOption(new Option(currOptions[currIndex], currType),shortcutList[shortcutIndex]);
+//					} else {
+//						addOption(new Option(currOptions[currIndex], currType));
+//					}
+//				}
+//				currIndex++;
+//				shortcutIndex++;
+//			}
+//			
+//			optionIndex++;
+//			typeIndex++;
+//		}
+//	}
+//	
+//	private Type typeStringToType(String type) {
+//		
+//		Type ans;
+//		
+//		if(type.equals("String")) {
+//			ans = Type.STRING;
+//		} else if (type.equals("Integer")) {
+//			ans = Type.INTEGER;
+//		} else if (type.equals("Character")) {
+//			ans = Type.CHARACTER;
+//		} else {
+//			ans = Type.BOOLEAN;
+//		}
+//		
+//		return ans;
+//	}
+//	
+//	private String[] generateOptionList(String option) {
+//		List<String> ans = new ArrayList<String>();
+//		
+//		if(option.contains("-") && checkValidGroup(option)) {
+//			for(String opt : groupToList(option)) {
+//				ans.add(opt);
+//			}
+//		} else {
+//			Pattern p = Pattern.compile("[A-Za-z0-9_]+");
+//	        Matcher m = p.matcher(option);
+//	        
+//	        if(m.matches() && !Character.isDigit(option.charAt(0))) {
+//	        	ans.add(option);
+//	        } else {
+//	        	return null;
+//	        }
+//		}
+//		
+//		return ans.toArray(new String[0]);
+//	}
+//	
+//	private String[] generateShortcutList(String[] shortcuts) {
+//		List<String> ans = new ArrayList<String>();
+//		
+//		for(String shortcut : shortcuts ) {
+//			if(shortcut.contains("-") && checkValidGroup(shortcut)) {
+//				for(String st : groupToList(shortcut)) {
+//					ans.add(st);
+//				}
+//			} else {
+//				Pattern p = Pattern.compile("[A-Za-z0-9_]+");
+//		        Matcher m = p.matcher(shortcut);
+//		        
+//		        if(m.matches() && !Character.isDigit(shortcut.charAt(0))) {
+//		        	ans.add(shortcut);
+//		        } else {
+//		        	ans.add(null);
+//		        }
+//			}
+//		}
+//		
+//		return ans.toArray(new String[0]);
+//	}
+//	
+//	private boolean checkTypeList(String[] typeList) {
+//		
+//		HashSet<String> typeSet = new HashSet<String>();
+//		typeSet.add("String");
+//		typeSet.add("Integer");
+//		typeSet.add("Character");
+//		typeSet.add("Boolean");
+//		
+//		for(String type : typeList) {
+//			if(!typeSet.contains(type)) {
+//				return false;
+//			}
+//		}
+//		
+//		return true;
+//	}
+//	
+//	private boolean checkValidGroup(String group) {
+//		
+//		int hyphenCount = 0;
+//		for(Character s : group.toCharArray()) {
+//			if(s == '-') {
+//				hyphenCount++;
+//			}
+//		}
+//		
+//		if (hyphenCount != 1) {
+//			return false;
+//		}
+//		
+//		int hyphenIndex = group.indexOf('-');
+//		
+//		String base = group.substring(0, hyphenIndex-1);
+//		Pattern p = Pattern.compile("[A-Za-z0-9_]+");
+//        Matcher m = p.matcher(base);
+//		if(!m.matches()) {
+//			return false;
+//		}
+//		
+//		char firstPart = group.charAt(hyphenIndex - 1);
+//		
+//		// 0 for lowercase, 1 for uppercase, 2 for numbers
+//		int rangeType;
+//		
+//	    if(Character.isLowerCase(firstPart)) {
+//	    	rangeType = 0;
+//	    } else if (Character.isUpperCase(firstPart)) {
+//	    	rangeType = 1;
+//	    } else if(Character.isDigit(firstPart)) {
+//	    	rangeType = 2;
+//	    } else {
+//	    	return false;
+//	    }
+//	    
+//	    if(rangeType == 0) {
+//	    	if(group.length() != hyphenIndex+2) {
+//	    		return false;
+//	    	}
+//	    	
+//	    	if(!Character.isLowerCase(group.charAt(hyphenIndex+1))) {
+//	    		return false;
+//	    	}
+//	    } else if (rangeType == 1) {
+//	    	if(group.length() != hyphenIndex+2) {
+//	    		return false;
+//	    	}
+//	    	
+//	    	if(!Character.isUpperCase(group.charAt(hyphenIndex+1))) {
+//	    		return false;
+//	    	}
+//	    } else {
+//	    	
+//	    	String secondPart = group.substring(hyphenIndex+1);
+//	    	
+//	    	Pattern p2 = Pattern.compile("[0-9]+");
+//	    	Matcher m2 = p2.matcher(secondPart);
+//	    	
+//	    	if(!m2.matches()) {
+//	    		return false;
+//	    	}
+//	    }
+//		
+//		return true;
+//	}
+//	
+//	private List<String> groupToList(String group) {
+//		List<String> ans = new ArrayList<String>();
+//		
+//		int hyphenIndex = group.indexOf('-');
+//		
+//		String base = group.substring(0, hyphenIndex-1);
+//		
+//		char firstPart = group.charAt(hyphenIndex - 1);
+//		
+//		if(Character.isDigit(firstPart)){
+//			int fstBound = Character.getNumericValue(firstPart);
+//			
+//			int sndBound = Integer.parseInt( group.substring(hyphenIndex+1));
+//			
+//			if(fstBound < sndBound) {
+//				while(fstBound <= sndBound) {
+//					ans.add(base + fstBound);
+//					fstBound++;
+//				}
+//			} else {
+//				while(sndBound <= fstBound) {
+//					ans.add(base + fstBound);
+//					fstBound--;
+//				}
+//			}
+//		} else {
+//			char fstBound = firstPart;
+//			
+//			char sndBound = group.charAt(hyphenIndex+1);
+//			
+//			if(fstBound < sndBound) {
+//				while(fstBound <= sndBound) {
+//					ans.add(base + fstBound);
+//					fstBound++;
+//				}
+//			} else {
+//				while(sndBound <= fstBound) {
+//					ans.add(base + fstBound);
+//					fstBound--;
+//				}
+//			}
+//		}
+//		
+//		return ans;
+//	}
 	
 	public boolean optionExists(String key) {
 		return optionMap.optionExists(key);
@@ -415,6 +415,7 @@ public class Parser {
 	
 	
 	public int parse(String commandLineOptions) {
+		
 		if (commandLineOptions == null) {
 			return -1;
 		}
