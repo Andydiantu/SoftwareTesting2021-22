@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class Task2_2_FunctionalTest {
+public class Task2_3_FunctionalTest {
 	
 	private Parser parser;
 	
@@ -13,18 +13,8 @@ public class Task2_2_FunctionalTest {
 	public void setUp() {
 		parser = new Parser();
 	}
-
 	
-	// get bug #1
-	@Test
-	public void emptyStringShortcutTest() {
-		parser.addOption(new Option("input", Type.STRING), "");
-	}
 	
-	@Test
-	public void emptyStringNameTest() {
-		parser.addOption(new Option("f23", Type.STRING), "oz");
-	}
 	
 	//get bug #8
 	@Test
@@ -168,16 +158,6 @@ public class Task2_2_FunctionalTest {
 		
 		assertEquals(parser.getString("ahsdjkflagshiuvhubadslkufghaklsdjfhkajdsfkaashdjkldfadsjkfklhasduhfadksljuhlfakdjshflk"), "ll");
 	}
-	
-	
-		@Test
-		public void longOptionNamewithShortCutTest() {
-			parser.addOption(new Option("ahsdjkflagshiuvhubadslkufghaklsdjfhkajdsfkaashdjkldfadsjkfklhasduhfadksljuhlfakdjshflk", Type.STRING), "st2" );
-			
-			parser.parse("-st2=ll");
-			
-			assertEquals(parser.getString("st2"), "ll");
-		}
 		
 		
 		// get bug #4
@@ -221,13 +201,6 @@ public class Task2_2_FunctionalTest {
 			parser.parse("                                                                            ");
 		}
 		
-		@Test
-		public void spaceParseTest() {
-			parser.addOption(new Option("op1", Type.STRING), "st");
-			
-			parser.parse("--op1 1.txt");
-			assertEquals(parser.getString("op1"), "1.txt");
-		}
 		
 		@Test (expected =  RuntimeException.class)
 		public void emptyParseTest() {
@@ -338,80 +311,6 @@ public class Task2_2_FunctionalTest {
 
 			parser.parse("--op             1 jkadsl");
 			
-		}
-		
-		@Test
-		public void multipleAssignmentParseTest() {
-			parser.addOption(new Option("op1", Type.STRING), "st");
-			
-			parser.parse("--op1=1.txt");
-			assertEquals(parser.getString("st"), "1.txt");
-			
-			parser.parse("--op1=andy.doc");
-			assertEquals(parser.getString("op1"), "andy.doc");
-			
-			parser.parse("-st=andy3.doc");
-			assertEquals(parser.getString("op1"), "andy3.doc");
-			
-			parser.parse("-st=andy5.doc");
-			assertEquals(parser.getString("st"), "andy5.doc");
-			
-			parser.parse("-st=andy5.doc");
-			assertEquals(parser.getString("st"), "andy5.doc");
-			
-			parser.parse("-st=andy5.doc");
-			assertEquals(parser.getString("st"), "andy5.doc");
-			
-			parser.parse("-st=andy5.doc");
-			assertEquals(parser.getString("st"), "andy5.doc");
-			
-			parser.parse("-st=andy5.doc");
-			assertEquals(parser.getString("st"), "andy5.doc");
-			
-			parser.parse("-st=andy5.doc");
-			assertEquals(parser.getString("st"), "andy5.doc");
-			
-			parser.parse("-st=andy5.doc");
-			assertEquals(parser.getString("st"), "andy5.doc");
-			
-			parser.parse("-st=andy5.doc");
-			assertEquals(parser.getString("st"), "andy5.doc");
-			
-			parser.parse("-st=andy5.doc");
-			assertEquals(parser.getString("st"), "andy5.doc");
-			
-			parser.parse("-st=andy5.doc");
-			assertEquals(parser.getString("st"), "andy5.doc");
-			
-			parser.parse("-st=andy5.doc");
-			assertEquals(parser.getString("st"), "andy5.doc");
-			
-			parser.parse("-st=andy5.doc");
-			assertEquals(parser.getString("st"), "andy5.doc");
-			
-			parser.parse("-st=andy5.doc");
-			assertEquals(parser.getString("st"), "andy5.doc");
-			
-			parser.parse("-st=andy5.doc");
-			assertEquals(parser.getString("st"), "andy5.doc");
-			
-			parser.parse("-st=andy5.doc");
-			assertEquals(parser.getString("st"), "andy5.doc");
-			
-			parser.parse("-st=andy5.doc");
-			assertEquals(parser.getString("st"), "andy5.doc");
-			
-			parser.parse("-st=andy5.doc");
-			assertEquals(parser.getString("st"), "andy5.doc");
-			
-			parser.parse("-st=andy5.doc");
-			assertEquals(parser.getString("st"), "andy5.doc");
-			
-			parser.parse("-st=andy5.doc");
-			assertEquals(parser.getString("st"), "andy5.doc");
-			
-			parser.parse("-st=andy5.doc");
-			assertEquals(parser.getString("st"), "andy5.doc");
 		}
 		
 		// get bug #10
@@ -613,12 +512,6 @@ public class Task2_2_FunctionalTest {
 			assertEquals(parser.getInteger("op1"), 0);
 		}
 		
-		
-		
-		
-		
-		
-		
 		@Test
 		public void nameAndShortcutExistTest() {
 			parser.addOption(new Option("op12", Type.INTEGER), "sc12");
@@ -639,15 +532,6 @@ public class Task2_2_FunctionalTest {
 		
 		
 		
-	@Test
-	public void normalReplaceTest() {
-		parser.addOption(new Option("op1", Type.STRING),"newSC");
-		
-		parser.parse("--op1=oldstuff");
-		
-		parser.replace("op1", "old", "new");
-		assertEquals(parser.getString("op1"),"newstuff" );
-	}
 	
 	// get bug #12
 	@Test
@@ -681,26 +565,6 @@ public class Task2_2_FunctionalTest {
 		
 		parser.replace("op1", "old", "new");
 		assertEquals(parser.getString("op1"),"" );
-	}
-	
-	@Test
-	public void replaceOriginalValueNullTest() {
-		parser.addOption(new Option("op1", Type.STRING),"newSC");
-		
-		parser.parse("--op1=oldstuff");
-		
-		parser.replace("op1", "old", "new");
-		assertEquals(parser.getString("op1"),"newstuff" );
-	}
-	
-	@Test
-	public void normalReplaceWithSpaceTest() {
-		parser.addOption(new Option("op1", Type.STRING),"newSC");
-		
-		parser.parse("--op1=\"o                          ld\"");
-		
-		parser.replace("op1", "o                          ld", "new");
-		assertEquals(parser.getString("op1"),"new" );
 	}
 	
 	@Test
@@ -743,17 +607,6 @@ public class Task2_2_FunctionalTest {
 		
 		parser.replace("sc", "old", "new");
 		assertEquals(parser.getString("sc"), "newVIEW");
-	}
-
-	
-	@Test
-	public void setShortCutNormalTest() {
-		parser.addOption(new Option("op1", Type.STRING));
-		
-		parser.parse("--op1=2.txt");
-		parser.setShortcut("op1", "sc");
-		
-		assertEquals(parser.getString("sc"), "2.txt");
 	}
 	
 	@Test

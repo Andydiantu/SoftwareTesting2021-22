@@ -26,6 +26,77 @@ public class Task3_TDD2 {
 		assertFalse(parser.getBoolean("option3"));
 	}
 	
+	@Test (expected = IllegalArgumentException.class)
+	public void addAllEmptyOptionTest() {
+		parser.addAll(null, null);
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addAllEmptyOption21Test() {
+		parser.addAll("", null);
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addAllEmptyOption2Test() {
+		parser.addAll(null, null, null);
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addAllEmptyOption22Test() {
+		parser.addAll("option3", null , null);
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addAllEmptyOption23Test() {
+		parser.addAll("option3", null , "String");
+	}
+	
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addAllEmptyOption3Test() {
+		parser.addAll("Options option2", "");
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addAllEmptyOption4Test() {
+		parser.addAll("", "String Integer");
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addAllEmptyOption5Test() {
+		parser.addAll("", "op23", "String Integer");
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addAllEmptyOption6Test() {
+		parser.addAll("option3-5", "","");
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addAllEmptyOption7Test() {
+		parser.addAll("       ","");
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addAllEmptyOption8Test() {
+		parser.addAll("              ", "","String Integer");
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addAllEmptyOption9Test() {
+		parser.addAll("              ","                ");
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addAllEmptyOption10Test() {
+		parser.addAll("         ","o3","             ");
+	}
+
+	@Test (expected = IllegalArgumentException.class)
+	public void addAllEmptyOption11Test() {
+		parser.addAll("         ","             ","             ");
+	}
+	
 	@Test
 	public void addAllMultiInitlizeExtraSpaceTest() {
 		parser.addAll("option1         option2                            option3", 
@@ -161,6 +232,36 @@ public class Task3_TDD2 {
 	}
 	
 	@Test
+	public void groupInitInvalidGroupTest2() {
+		parser.addAll("o2-------------- o3-5 o^%&^&^-& o123&-& oa-A oasdfA-SDFA", "Integer Integer");
+		parser.parse("--o3=12");
+		parser.parse("--o4=56");
+		
+		assertEquals(parser.getInteger("o3"), 12);
+		assertEquals(parser.getInteger("o4"), 56);
+	}
+	
+	@Test
+	public void groupInitInvalidGroupTest3() {
+		parser.addAll("2P1-3 oA-F", "Integer Integer");
+		parser.parse("--oA=12");
+		parser.parse("--oE=56");
+		
+		assertEquals(parser.getInteger("oA"), 12);
+		assertEquals(parser.getInteger("oE"), 56);
+	}
+	
+	@Test
+	public void groupInitInvalidShortcutGroupTest() {
+		parser.addAll("2P1-3 oA-F", "2op option&* ","Integer Integer");
+		parser.parse("--oA=12");
+		parser.parse("--oE=56");
+		
+		assertEquals(parser.getInteger("oA"), 12);
+		assertEquals(parser.getInteger("oE"), 56);
+	}
+	
+	@Test
 	public void groupInitTypeGroupcorrespondTest() {
 		parser.addAll("option3-6 option8-9", "Integer String");
 		
@@ -192,6 +293,17 @@ public class Task3_TDD2 {
 		assertTrue(parser.getBoolean("option23"));
 		}
 	}
+	
+	@Test
+	public void groupInitNotEndRangeTest2() {
+		parser.addAll("o2-4ab option23 oa-B23 oa-cAV", "shortcut2 shortcut8","Integer Boolean");{
+		parser.parse("--option23=true");
+			
+		assertTrue(parser.getBoolean("option23"));
+		}
+	}
+	
+	
 	
 	@Test
 	public void groupInitDecreaseRangeTest() {

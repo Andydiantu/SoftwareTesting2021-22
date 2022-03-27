@@ -42,9 +42,11 @@ class Option {
 		
 		Option other = (Option) obj;
 		boolean notEqual = obj == null || 
-				getClass() != obj.getClass() ||
-				(this.type != other.type) ||
-				(name == null && other.name != null) || !name.equals(other.name);
+				getClass() != obj.getClass() || 
+				(this.type != other.type) || 
+				(name == null && 
+				other.name != null) || 
+				!name.equals(other.name);
 		
 		return this == obj || !notEqual;
 	}
